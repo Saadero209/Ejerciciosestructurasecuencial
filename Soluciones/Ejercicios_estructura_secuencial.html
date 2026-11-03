@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicios estructura secuencial</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --texto: #1f2937; --suave: #6b7280;
+    --azul: #1f3a5f; --acento: #2563eb; --borde: #d9dde3;
+    --codigo-bg: #f3f4f6; --codigo-tx: #111827;
+    --salida-bg: #1e1f22; --salida-tx: #e6e6e6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --card: #1c1f25; --texto: #e5e7eb; --suave: #9ca3af;
+      --azul: #9db8e0; --acento: #5b9bff; --borde: #2d323b;
+      --codigo-bg: #14161a; --codigo-tx: #e5e7eb;
+      --salida-bg: #0c0d0f; --salida-tx: #e6e6e6;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10; background: var(--card);
+    border-bottom: 1px solid var(--borde); padding: 12px 16px 10px;
+  }
+  .barra { max-width: 860px; margin: 0 auto; }
+  .fila { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.15rem; color: var(--azul); flex: 1 1 auto; }
+  .autor { color: var(--suave); font-size: .85rem; }
+  .buscador { position: relative; margin: 10px 0 8px; }
+  .buscador input {
+    width: 100%; padding: 10px 70px 10px 12px; font-size: 1rem; color: var(--texto);
+    background: var(--bg); border: 1px solid var(--borde); border-radius: 8px;
+  }
+  .buscador input:focus { outline: 2px solid var(--acento); border-color: transparent; }
+  .limpiar {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; color: var(--suave); cursor: pointer; font-size: .85rem; padding: 6px 8px;
+    display: none;
+  }
+  .menu { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .menu .titulo { font-size: .8rem; color: var(--suave); margin-right: 4px; }
+  .chip {
+    min-width: 34px; text-align: center; padding: 4px 8px; border-radius: 6px; font-size: .85rem;
+    text-decoration: none; color: var(--azul); background: var(--bg); border: 1px solid var(--borde);
+  }
+  .chip:hover { border-color: var(--acento); color: var(--acento); }
+  .chip.activo { background: var(--acento); border-color: var(--acento); color: #fff; }
+  .chip.oculto { display: none; }
+  #estado { font-size: .8rem; color: var(--suave); margin-top: 6px; min-height: 1.2em; }
+  main { max-width: 860px; margin: 0 auto; padding: 16px; }
+  .ej {
+    background: var(--card); border: 1px solid var(--borde); border-radius: 10px;
+    padding: 16px 18px 18px; margin-bottom: 16px; scroll-margin-top: var(--hh, 200px);
+  }
+  .ej.oculto { display: none; }
+  .ej h2 { margin: 0 0 6px; font-size: 1.1rem; color: var(--azul); }
+  .enun { margin: 0 0 12px; }
+  .etiqueta {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--suave);
+    font-weight: 600; margin: 8px 0 4px;
+  }
+  .copiar {
+    font-size: .75rem; text-transform: none; letter-spacing: 0; cursor: pointer;
+    background: none; border: 1px solid var(--borde); color: var(--suave); border-radius: 5px; padding: 2px 8px;
+  }
+  .copiar:hover { color: var(--acento); border-color: var(--acento); }
+  pre {
+    margin: 0; padding: 10px 12px; border-radius: 7px; overflow-x: auto; font-size: .88rem; line-height: 1.45;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  pre.codigo { background: var(--codigo-bg); color: var(--codigo-tx); border: 1px solid var(--borde); }
+  pre.salida { background: var(--salida-bg); color: var(--salida-tx); }
+  mark { background: #fde68a; color: #111; border-radius: 2px; }
+  #vacio { display: none; text-align: center; color: var(--suave); padding: 40px 0; }
+  .arriba {
+    position: fixed; right: 16px; bottom: 16px; width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--borde); background: var(--card); color: var(--azul); cursor: pointer; font-size: 1.1rem;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="barra">
+    <div class="fila">
+      <h1>Ejercicios estructura secuencial</h1>
+      <span class="autor">Saad Jlilou · Python 3</span>
+    </div>
+    <div class="buscador">
+      <input id="q" type="search" placeholder="Buscar por palabra, número o código (ej: raíz, hipotenusa, 12)…" autocomplete="off" aria-label="Buscar ejercicios">
+      <button class="limpiar" id="limpiar" type="button">Borrar</button>
+    </div>
+    <nav class="menu" aria-label="Menú de ejercicios">
+      <span class="titulo">Ir al ejercicio:</span>
+      <a class="chip" href="#ej1" data-n="1">1</a>
+      <a class="chip" href="#ej2" data-n="2">2</a>
+      <a class="chip" href="#ej3" data-n="3">3</a>
+      <a class="chip" href="#ej4" data-n="4">4</a>
+      <a class="chip" href="#ej5" data-n="5">5</a>
+      <a class="chip" href="#ej6" data-n="6">6</a>
+      <a class="chip" href="#ej7" data-n="7">7</a>
+      <a class="chip" href="#ej8" data-n="8">8</a>
+      <a class="chip" href="#ej9" data-n="9">9</a>
+      <a class="chip" href="#ej10" data-n="10">10</a>
+      <a class="chip" href="#ej11" data-n="11">11</a>
+      <a class="chip" href="#ej12" data-n="12">12</a>
+      <a class="chip" href="#ej13" data-n="13">13</a>
+      <a class="chip" href="#ej14" data-n="14">14</a>
+      <a class="chip" href="#ej15" data-n="15">15</a>
+      <a class="chip" href="#ej16" data-n="16">16</a>
+      <a class="chip" href="#ej17" data-n="17">17</a>
+      <a class="chip" href="#ej18" data-n="18">18</a>
+      <a class="chip" href="#ej19" data-n="19">19</a>
+      <a class="chip" href="#ej20" data-n="20">20</a>
+    </nav>
+    <div id="estado" aria-live="polite"></div>
+  </div>
+</header>
+
+<main>
+
+<article class="ej" id="ej1" data-n="1">
+  <h2>Ejercicio 1</h2>
+  <p class="enun">Escribir un programa que pregunte al usuario su nombre, y luego lo salude.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>nombre = input(&quot;¿Cómo te llamas? &quot;)
+print(&quot;Hola&quot;, nombre)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>¿Cómo te llamas? Saad
+Hola Saad</code></pre>
+</article>
+
+<article class="ej" id="ej2" data-n="2">
+  <h2>Ejercicio 2</h2>
+  <p class="enun">Calcular el perímetro y área de un rectángulo dada su base y su altura.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>base = float(input(&quot;Introduce la base del rectangulo: &quot;))
+altura = float(input(&quot;Introduce la altura del rectangulo: &quot;))
+
+perimetro = 2 * (base + altura)
+area = base * altura
+
+print(f&quot;El perimetro del rectangulo es: {perimetro}&quot;)
+print(f&quot;El area del rectangulo es: {area}&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduce la base del rectangulo: 5
+Introduce la altura del rectangulo: 3
+El perimetro del rectangulo es: 16.0
+El area del rectangulo es: 15.0</code></pre>
+</article>
+
+<article class="ej" id="ej3" data-n="3">
+  <h2>Ejercicio 3</h2>
+  <p class="enun">Dados los catetos de un triángulo rectángulo, calcular su hipotenusa.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>import math
+
+cateto1 = float(input(&quot;Ingrese el primer cateto: &quot;))
+cateto2 = float(input(&quot;Ingrese el segundo cateto: &quot;))
+
+hipotenusa = math.sqrt(cateto1 ** 2 + cateto2 ** 2)
+
+print(f&quot;La hipotenusa es: {hipotenusa}&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Ingrese el primer cateto: 3
+Ingrese el segundo cateto: 4
+La hipotenusa es: 5.0</code></pre>
+</article>
+
+<article class="ej" id="ej4" data-n="4">
+  <h2>Ejercicio 4</h2>
+  <p class="enun">Dados dos números, mostrar la suma, resta, división y multiplicación de ambos.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>num1 = float(input(&quot;Introduzca el primer numero: &quot;))
+num2 = float(input(&quot;Introduzca el segundo numero: &quot;))
+
+print(&quot;Suma de&quot;, num1 + num2)
+print(&quot;Resta de&quot;, num1 - num2)
+print(&quot;Multiplicacion de&quot;, num1 * num2)
+print(&quot;Division de&quot;, num1 / num2)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduzca el primer numero: 8
+Introduzca el segundo numero: 2
+Suma de 10.0
+Resta de 6.0
+Multiplicacion de 16.0
+Division de 4.0</code></pre>
+</article>
+
+<article class="ej" id="ej5" data-n="5">
+  <h2>Ejercicio 5</h2>
+  <p class="enun">Escribir un programa que convierta un valor dado en grados Fahrenheit a grados Celsius. Recordar que la fórmula para la conversión es: C = (F-32)*5/9</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>F = float(input(&quot;Fahrenheit: &quot;))
+C = (F - 32) * 5 / 9
+print(&quot;Celsius:&quot;, C)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Fahrenheit: 212
+Celsius: 100.0</code></pre>
+</article>
+
+<article class="ej" id="ej6" data-n="6">
+  <h2>Ejercicio 6</h2>
+  <p class="enun">Calcular la media de tres números pedidos por teclado.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>num1 = float(input(&quot;Introduce el primer numero: &quot;))
+num2 = float(input(&quot;Introduce el segundo numero: &quot;))
+num3 = float(input(&quot;Introduce el tercer numero: &quot;))
+
+media = (num1 + num2 + num3) / 3
+
+print(&quot;La media es:&quot;, media)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduce el primer numero: 4
+Introduce el segundo numero: 6
+Introduce el tercer numero: 8
+La media es: 6.0</code></pre>
+</article>
+
+<article class="ej" id="ej7" data-n="7">
+  <h2>Ejercicio 7</h2>
+  <p class="enun">Realiza un programa que reciba una cantidad de minutos y muestre por pantalla a cuántas horas y minutos corresponde. Por ejemplo: 1000 minutos son 16 horas y 40 minutos.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>minutos = int(input(&quot;Introduce el numero de minutos: &quot;))
+
+horas = minutos // 60
+mins = minutos % 60
+
+print(minutos, &quot;minutos son&quot;, horas, &quot;horas y&quot;, mins, &quot;minutos&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduce el numero de minutos: 1000
+1000 minutos son 16 horas y 40 minutos</code></pre>
+</article>
+
+<article class="ej" id="ej8" data-n="8">
+  <h2>Ejercicio 8</h2>
+  <p class="enun">Un vendedor recibe un sueldo base más un 10% extra por comisión de sus ventas, el vendedor desea saber cuánto dinero obtendrá por concepto de comisiones por las tres ventas que realiza en el mes y el total que recibirá en el mes tomando en cuenta su sueldo base y comisiones.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>sueldo = float(input(&quot;Introduce el sueldo base: &quot;))
+venta1 = float(input(&quot;Introduce la venta 1: &quot;))
+venta2 = float(input(&quot;Introduce la venta 2: &quot;))
+venta3 = float(input(&quot;Introduce la venta 3: &quot;))
+
+comision = (venta1 + venta2 + venta3) * 0.10
+total = sueldo + comision
+
+print(&quot;Comision por las ventas:&quot;, comision)
+print(&quot;Total del mes:&quot;, total)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduce el sueldo base: 1000
+Introduce la venta 1: 500
+Introduce la venta 2: 300
+Introduce la venta 3: 200
+Comision por las ventas: 100.0
+Total del mes: 1100.0</code></pre>
+</article>
+
+<article class="ej" id="ej9" data-n="9">
+  <h2>Ejercicio 9</h2>
+  <p class="enun">Una tienda ofrece un descuento del 15% sobre el total de la compra y un cliente desea saber cuánto deberá pagar finalmente por su compra.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>compra = float(input(&quot;Digite la cantidad de la compra: &quot;))
+
+descuento = compra * 0.15
+pagar = compra - descuento
+
+print(&quot;Descuento:&quot;, descuento)
+print(&quot;Total a pagar:&quot;, pagar)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Digite la cantidad de la compra: 200
+Descuento: 30.0
+Total a pagar: 170.0</code></pre>
+</article>
+
+<article class="ej" id="ej10" data-n="10">
+  <h2>Ejercicio 10</h2>
+  <p class="enun">Un alumno desea saber cuál será su calificación final en la materia de Algoritmos. Dicha calificación se compone de los siguientes porcentajes: 55% del promedio de sus tres calificaciones parciales, 30% de la calificación del examen final y 15% de la calificación de un trabajo final.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>p1 = float(input(&quot;Primer parcial: &quot;))
+p2 = float(input(&quot;Segundo parcial: &quot;))
+p3 = float(input(&quot;Tercer parcial: &quot;))
+examen = float(input(&quot;Examen final: &quot;))
+trabajo = float(input(&quot;Trabajo final: &quot;))
+
+promedio = (p1 + p2 + p3) / 3
+final = promedio * 0.55 + examen * 0.30 + trabajo * 0.15
+
+print(&quot;Calificacion final:&quot;, round(final, 2))</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Primer parcial: 7
+Segundo parcial: 8
+Tercer parcial: 9
+Examen final: 8
+Trabajo final: 10
+Calificacion final: 8.3</code></pre>
+</article>
+
+<article class="ej" id="ej11" data-n="11">
+  <h2>Ejercicio 11</h2>
+  <p class="enun">Pide al usuario dos números y muestra la “distancia” entre ellos (el valor absoluto de su diferencia, de modo que el resultado sea siempre positivo).</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>a = int(input(&quot;Digite el primer numero: &quot;))
+b = int(input(&quot;Digite el segundo numero: &quot;))
+
+if a &gt; b:
+    distancia = a - b
+else:
+    distancia = b - a
+
+print(&quot;La distancia es:&quot;, distancia)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Digite el primer numero: 3
+Digite el segundo numero: 10
+La distancia es: 7</code></pre>
+</article>
+
+<article class="ej" id="ej12" data-n="12">
+  <h2>Ejercicio 12</h2>
+  <p class="enun">Pide al usuario dos pares de números x1,y1 y x2,y2, que representen dos puntos en el plano. Calcula y muestra la distancia entre ellos.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>x1 = int(input(&quot;Introduzca x1: &quot;))
+y1 = int(input(&quot;Introduzca y1: &quot;))
+x2 = int(input(&quot;Introduzca x2: &quot;))
+y2 = int(input(&quot;Introduzca y2: &quot;))
+
+distanciax = x2 - x1
+distanciay = y2 - y1
+
+distancia = (distanciax * distanciax + distanciay * distanciay) ** 0.5
+
+print(&quot;La distancia es:&quot;, distancia)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduzca x1: 1
+Introduzca y1: 2
+Introduzca x2: 4
+Introduzca y2: 6
+La distancia es: 5.0</code></pre>
+</article>
+
+<article class="ej" id="ej13" data-n="13">
+  <h2>Ejercicio 13</h2>
+  <p class="enun">Realizar un algoritmo que lea un número y que muestre su raíz cuadrada y su raíz cúbica. Python3 no tiene ninguna función predefinida que permita calcular la raíz cúbica, ¿Cómo se puede calcular?</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>import math
+
+num = float(input(&quot;Digite un numero: &quot;))
+
+print(&quot;Raiz cuadrada:&quot;, math.sqrt(num))
+print(&quot;Raiz cubica:&quot;, num ** (1 / 3))
+
+# La raiz cubica de x es lo mismo que x elevado a 1/3</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Digite un numero: 27
+Raiz cuadrada: 5.196152422706632
+Raiz cubica: 3.0</code></pre>
+</article>
+
+<article class="ej" id="ej14" data-n="14">
+  <h2>Ejercicio 14</h2>
+  <p class="enun">Dado un número de dos cifras, diseñe un algoritmo que permita obtener el número invertido. Ejemplo, si se introduce 23 que muestre 32.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>num = int(input(&quot;Digite un numero de dos cifras: &quot;))
+
+cifra1 = num // 10
+cifra2 = num % 10
+
+invertido = cifra2 * 10 + cifra1
+
+print(invertido)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Digite un numero de dos cifras: 23
+32</code></pre>
+</article>
+
+<article class="ej" id="ej15" data-n="15">
+  <h2>Ejercicio 15</h2>
+  <p class="enun">Dadas dos variables numéricas A y B, que el usuario debe teclear, se pide realizar un algoritmo que intercambie los valores de ambas variables y muestre cuánto valen al final las dos variables.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>A = int(input(&quot;Introduzca A: &quot;))
+B = int(input(&quot;Introduzca B: &quot;))
+
+A, B = B, A
+
+print(&quot;A:&quot;, A)
+print(&quot;B:&quot;, B)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduzca A: 5
+Introduzca B: 9
+A: 9
+B: 5</code></pre>
+</article>
+
+<article class="ej" id="ej16" data-n="16">
+  <h2>Ejercicio 16</h2>
+  <p class="enun">Dos vehículos viajan a diferentes velocidades (v1 y v2) y están distanciados por una distancia d. El que está detrás viaja a una velocidad mayor. Se pide hacer un algoritmo para ingresar la distancia entre los dos vehículos (km) y sus respectivas velocidades (km/h) y con esto determinar y mostrar en qué tiempo (minutos) alcanzará el vehículo más rápido al otro.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>d = float(input(&quot;Distancia entre los vehiculos (km): &quot;))
+v1 = float(input(&quot;Velocidad del vehiculo de atras (km/h): &quot;))
+v2 = float(input(&quot;Velocidad del vehiculo de delante (km/h): &quot;))
+
+t_horas = d / (v1 - v2)
+t_min = t_horas * 60
+
+print(&quot;Lo alcanzara en&quot;, t_min, &quot;minutos&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Distancia entre los vehiculos (km): 10
+Velocidad del vehiculo de atras (km/h): 100
+Velocidad del vehiculo de delante (km/h): 80
+Lo alcanzara en 30.0 minutos</code></pre>
+</article>
+
+<article class="ej" id="ej17" data-n="17">
+  <h2>Ejercicio 17</h2>
+  <p class="enun">Un ciclista parte de una ciudad A a las HH horas, MM minutos y SS segundos. El tiempo de viaje hasta llegar a otra ciudad B es de T segundos. Escribir un algoritmo que determine la hora de llegada a la ciudad B.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>HH = int(input(&quot;Introduzca la hora: &quot;))
+MM = int(input(&quot;Introduzca los minutos: &quot;))
+SS = int(input(&quot;Introduzca los segundos: &quot;))
+T = int(input(&quot;Introduzca el tiempo del viaje (segundos): &quot;))
+
+total = HH * 3600 + MM * 60 + SS + T
+
+horas = total // 3600
+minutos = total % 3600 // 60
+segundos = total % 60
+
+print(&quot;Llegada a las&quot;, horas, &quot;horas&quot;, minutos, &quot;min&quot;, segundos, &quot;segundos&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduzca la hora: 10
+Introduzca los minutos: 30
+Introduzca los segundos: 0
+Introduzca el tiempo del viaje (segundos): 5400
+Llegada a las 12 horas 0 min 0 segundos</code></pre>
+</article>
+
+<article class="ej" id="ej18" data-n="18">
+  <h2>Ejercicio 18</h2>
+  <p class="enun">Pedir el nombre y los dos apellidos de una persona y mostrar las iniciales.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>nombre = input(&quot;Introduzca el nombre: &quot;)
+apellido = input(&quot;Introduzca el primer apellido: &quot;)
+apellido2 = input(&quot;Introduzca el segundo apellido: &quot;)
+
+print(nombre[0], apellido[0], apellido2[0])</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Introduzca el nombre: Ana
+Introduzca el primer apellido: García
+Introduzca el segundo apellido: López
+A G L</code></pre>
+</article>
+
+<article class="ej" id="ej19" data-n="19">
+  <h2>Ejercicio 19</h2>
+  <p class="enun">Escribir un algoritmo para calcular la nota final de un estudiante, considerando que: por cada respuesta correcta 5 puntos, por una incorrecta -1 y por respuestas en blanco 0. Imprime el resultado obtenido por el estudiante.</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>correctas = int(input(&quot;Respuestas correctas: &quot;))
+incorrectas = int(input(&quot;Respuestas incorrectas: &quot;))
+blancas = int(input(&quot;Respuestas en blanco: &quot;))
+
+nota = correctas * 5 - incorrectas * 1 + blancas * 0
+
+print(&quot;Nota final:&quot;, nota)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Respuestas correctas: 10
+Respuestas incorrectas: 4
+Respuestas en blanco: 2
+Nota final: 46</code></pre>
+</article>
+
+<article class="ej" id="ej20" data-n="20">
+  <h2>Ejercicio 20</h2>
+  <p class="enun">Diseñar un algoritmo que nos diga el dinero que tenemos (en euros y céntimos) después de pedirnos cuántas monedas tenemos (de 2€, 1€, 50 céntimos, 20 céntimos o 10 céntimos).</p>
+  <div class="etiqueta"><span>Código</span><button class="copiar" type="button">Copiar</button></div>
+  <pre class="codigo"><code>m2 = int(input(&quot;Monedas de 2 euros: &quot;))
+m1 = int(input(&quot;Monedas de 1 euro: &quot;))
+m50 = int(input(&quot;Monedas de 50 centimos: &quot;))
+m20 = int(input(&quot;Monedas de 20 centimos: &quot;))
+m10 = int(input(&quot;Monedas de 10 centimos: &quot;))
+
+total = m2 * 200 + m1 * 100 + m50 * 50 + m20 * 20 + m10 * 10
+
+print(total // 100, &quot;euros y&quot;, total % 100, &quot;centimos&quot;)</code></pre>
+  <div class="etiqueta"><span>Resultado</span></div>
+  <pre class="salida"><code>Monedas de 2 euros: 2
+Monedas de 1 euro: 3
+Monedas de 50 centimos: 1
+Monedas de 20 centimos: 4
+Monedas de 10 centimos: 5
+8 euros y 80 centimos</code></pre>
+</article>
+  <p id="vacio">No se ha encontrado ningún ejercicio con esa búsqueda.</p>
+</main>
+
+<button class="arriba" id="arriba" type="button" title="Subir" aria-label="Subir">↑</button>
+
+<script>
+(function () {
+  var q = document.getElementById('q');
+  var limpiar = document.getElementById('limpiar');
+  var estado = document.getElementById('estado');
+  var vacio = document.getElementById('vacio');
+  var tarjetas = Array.prototype.slice.call(document.querySelectorAll('.ej'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+
+  function norm(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // Guardamos el texto de cada tarjeta ya normalizado y el HTML original para resaltar
+  tarjetas.forEach(function (t) {
+    t._texto = norm(t.textContent);
+    t._cuerpos = Array.prototype.slice.call(t.querySelectorAll('.enun, code'));
+    t._cuerpos.forEach(function (el) { el._orig = el.innerHTML; });
+  });
+
+  function resaltar(el, termino) {
+    el.innerHTML = el._orig;
+    if (!termino) return;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var nodos = [];
+    while (walker.nextNode()) nodos.push(walker.currentNode);
+    nodos.forEach(function (n) {
+      var original = n.nodeValue;
+      var plano = norm(original);
+      // normalizar puede cambiar la longitud; solo resaltamos si coincide en longitud
+      if (plano.length !== original.length) return;
+      var idx = plano.indexOf(termino);
+      if (idx === -1) return;
+      var frag = document.createDocumentFragment();
+      var pos = 0;
+      while (idx !== -1) {
+        frag.appendChild(document.createTextNode(original.slice(pos, idx)));
+        var m = document.createElement('mark');
+        m.textContent = original.slice(idx, idx + termino.length);
+        frag.appendChild(m);
+        pos = idx + termino.length;
+        idx = plano.indexOf(termino, pos);
+      }
+      frag.appendChild(document.createTextNode(original.slice(pos)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  function filtrar() {
+    var termino = norm(q.value.trim());
+    var visibles = 0;
+    tarjetas.forEach(function (t, i) {
+      var num = String(i + 1);
+      var coincide = !termino || t._texto.indexOf(termino) !== -1 ||
+                     ('ejercicio ' + num) === termino || num === termino;
+      t.classList.toggle('oculto', !coincide);
+      chips[i].classList.toggle('oculto', !coincide);
+      t._cuerpos.forEach(function (el) { resaltar(el, coincide ? termino : ''); });
+      if (coincide) visibles++;
+    });
+    limpiar.style.display = q.value ? 'block' : 'none';
+    vacio.style.display = visibles ? 'none' : 'block';
+    estado.textContent = termino
+      ? visibles + ' de ' + tarjetas.length + ' ejercicios'
+      : '';
+  }
+
+  q.addEventListener('input', filtrar);
+  limpiar.addEventListener('click', function () { q.value = ''; filtrar(); q.focus(); });
+
+  // El margen de salto depende de la altura real de la cabecera (cambia en pantallas estrechas)
+  var cab = document.querySelector('header');
+  function ajustar() {
+    document.documentElement.style.setProperty('--hh', (cab.offsetHeight + 12) + 'px');
+  }
+  ajustar();
+  window.addEventListener('resize', ajustar);
+  if (window.ResizeObserver) new ResizeObserver(ajustar).observe(cab);
+
+  // Marcar en el menú el ejercicio que se está viendo
+  var obs = new IntersectionObserver(function (entradas) {
+    entradas.forEach(function (e) {
+      if (e.isIntersecting) {
+        chips.forEach(function (c) { c.classList.remove('activo'); });
+        chips[Number(e.target.dataset.n) - 1].classList.add('activo');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  tarjetas.forEach(function (t) { obs.observe(t); });
+
+  // Botones de copiar código
+  document.querySelectorAll('.copiar').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var codigo = b.closest('.ej').querySelector('pre.codigo').textContent;
+      var listo = function () { b.textContent = '¡Copiado!'; setTimeout(function () { b.textContent = 'Copiar'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codigo).then(listo, function () {});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = codigo; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); listo(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  document.getElementById('arriba').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Atajo: "/" enfoca el buscador
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  });
+})();
+</script>
+</body>
+</html>
