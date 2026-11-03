@@ -9,7 +9,7 @@ p3 = int(input("digite terceiro valor: "))
 examen = float(input("examen: "))
 trabajo = float(input("trabajo: "))
 
-promedio = p1+p2+p3 /3
-final = promedio * 0,55 + examen + trabajo * 0,15
+promedio = (p1+p2+p3)/3
+final = promedio * 0,55 + examen * 0,30 + trabajo * 0,15
 
 print("final : ",final)
